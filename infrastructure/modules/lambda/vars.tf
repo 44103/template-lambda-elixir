@@ -7,6 +7,6 @@ variable "iam_role" {
 }
 
 variable "envs" {
-  type = map(string)
+  type        = map(string)
   description = "lambdaで使う環境変数"
 }

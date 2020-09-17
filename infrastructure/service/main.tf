@@ -1,3 +1,3 @@
 module "service" {
-  source  = "../"
+  source = "../"
 }

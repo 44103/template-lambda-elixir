@@ -12,3 +12,9 @@ variable "project" {
   description = "リソース名のProject"
   default     = "sample"
 }
+
+locals {
+  aws_name = join(
+    "_", [var.prefix, var.project]
+  )
+}

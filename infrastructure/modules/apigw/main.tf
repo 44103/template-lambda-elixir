@@ -23,7 +23,7 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   resource_id = data.aws_api_gateway_resource.root.id
   http_method = aws_api_gateway_method.any.http_method
 
-  type = "AWS_PROXY"
+  type                    = "AWS_PROXY"
   integration_http_method = "POST"
 
   uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.lambda.arn}/invocations"
@@ -53,7 +53,7 @@ resource "aws_api_gateway_integration" "proxy_lambda_integration" {
   resource_id = aws_api_gateway_resource.proxy_target.id
   http_method = aws_api_gateway_method.proxy_any.http_method
 
-  type = "AWS_PROXY"
+  type                    = "AWS_PROXY"
   integration_http_method = "POST"
 
   uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.lambda.arn}/invocations"
