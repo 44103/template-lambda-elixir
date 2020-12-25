@@ -1,0 +1,4 @@
+# リージョン
+region = "ap-northeast-1"
+
+slack_token = "xoxp-"

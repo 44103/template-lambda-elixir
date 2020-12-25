@@ -1,79 +1,43 @@
-resource "aws_api_gateway_rest_api" "main" {
+resource "aws_api_gateway_rest_api" "api" {
   name = var.aws_name
-
-  binary_media_types = [
-    "*/*",
-  ]
 }
 
-data "aws_api_gateway_resource" "root" {
-  rest_api_id = aws_api_gateway_rest_api.main.id
-  path        = "/"
+resource "aws_api_gateway_resource" "resource" {
+  path_part   = "resource"
+  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+  rest_api_id = aws_api_gateway_rest_api.api.id
 }
 
-resource "aws_api_gateway_method" "any" {
-  rest_api_id   = aws_api_gateway_rest_api.main.id
-  resource_id   = data.aws_api_gateway_resource.root.id
-  http_method   = "ANY"
+resource "aws_api_gateway_method" "method" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.resource.id
+  http_method   = "POST"
   authorization = "NONE"
 }
 
-resource "aws_api_gateway_integration" "lambda_integration" {
-  rest_api_id = aws_api_gateway_rest_api.main.id
-  resource_id = data.aws_api_gateway_resource.root.id
-  http_method = aws_api_gateway_method.any.http_method
-
-  type                    = "AWS_PROXY"
+resource "aws_api_gateway_integration" "integration" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.resource.id
+  http_method             = aws_api_gateway_method.method.http_method
   integration_http_method = "POST"
-
-  uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.lambda.arn}/invocations"
-}
-
-resource "aws_api_gateway_resource" "proxy" {
-  rest_api_id = aws_api_gateway_rest_api.main.id
-  parent_id   = aws_api_gateway_rest_api.main.root_resource_id
-  path_part   = "proxy"
-}
-
-resource "aws_api_gateway_resource" "proxy_target" {
-  rest_api_id = aws_api_gateway_rest_api.main.id
-  parent_id   = aws_api_gateway_resource.proxy.id
-  path_part   = "{target+}"
-}
-
-resource "aws_api_gateway_method" "proxy_any" {
-  rest_api_id   = aws_api_gateway_rest_api.main.id
-  resource_id   = aws_api_gateway_resource.proxy_target.id
-  http_method   = "ANY"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_integration" "proxy_lambda_integration" {
-  rest_api_id = aws_api_gateway_rest_api.main.id
-  resource_id = aws_api_gateway_resource.proxy_target.id
-  http_method = aws_api_gateway_method.proxy_any.http_method
-
   type                    = "AWS_PROXY"
-  integration_http_method = "POST"
-
-  uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.lambda.arn}/invocations"
+  uri                     = var.lambda.invoke_arn
 }
 
-resource "aws_lambda_permission" "api_gateway_lambda" {
+resource "aws_lambda_permission" "apigw_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = var.lambda.arn
+  function_name = var.lambda.function_name
   principal     = "apigateway.amazonaws.com"
-
-  source_arn = "${aws_api_gateway_rest_api.main.execution_arn}/*/*/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/${aws_api_gateway_method.method.http_method}${aws_api_gateway_resource.resource.path}"
 }
 
 resource "aws_api_gateway_deployment" "production" {
   depends_on = [
-    aws_api_gateway_integration.lambda_integration,
-    aws_api_gateway_integration.proxy_lambda_integration,
+    aws_api_gateway_integration.integration,
   ]
 
-  rest_api_id = aws_api_gateway_rest_api.main.id
+  rest_api_id = aws_api_gateway_rest_api.api.id
   stage_name  = "prod"
 
   stage_description = "HASH=${md5(file("../modules/apigw/main.tf"))}"

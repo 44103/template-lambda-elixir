@@ -1,11 +1,10 @@
 variable "region" {
   description = "リージョン"
-  default     = "ap-northeast-1"
 }
 
 variable "prefix" {
   description = "リソース名のPrefix"
-  default     = "ts"
+  default     = "ex"
 }
 
 variable "project" {
@@ -17,4 +16,8 @@ locals {
   aws_name = join(
     "_", [var.prefix, var.project]
   )
+}
+
+variable "slack_token" {
+  description = "Lambdaで使用するSlackのToken"
 }

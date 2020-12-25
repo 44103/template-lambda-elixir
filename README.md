@@ -1,29 +1,27 @@
-# Terraform環境構築
+# AWS LambdaでElixirをGAS並みにお手軽構築
 
-# 使い方
-## 環境変数設定（AWSアクセスキー）
-.env.exampleファイルを.envにリネームし、内容を変更する。
-
-## 環境変数設定（APIキー）
-terraform.tfvars.exampleファイルをterraform.tfvarsにリネームし、使用するAPIのキーなどを入力し、variables.tfファイルに変数定義をする。
-
-## コンテナ起動
-コマンド毎に使い切りのコンテナを建てる。  
-```bash
-docker-compose run --rm terraform fmt
-docker-compose run --rm terraform validate
-docker-compose run --rm terraform init
-docker-compose run --rm terraform plan
-docker-compose run --rm terraform apply -auto-approve
-docker-compose run --rm terraform destroy -auto-approve
-```
-
-# Dev, Stg環境切り替え
-```bash
-docker-compose run --rm terraform workspace select dev
-docker-compose run --rm terraform workspace select stg
-```
-
-# 参考文献
-- [Docker-ComposeでTerraformを使う](https://qiita.com/m0559reen/items/1e433ff9e6f6229c3291)
-- [AWSでTerraformに入門](https://dev.classmethod.jp/articles/terraform-getting-started-with-aws/)
+## 取扱説明
+1. GitHubからClone
+    ```bash
+    git clone <URL>
+    ```
+1. Elixirプロジェクトの作成
+    ```bash
+    docker-compose run --rm projex mix new lambda_ex
+    ```
+1. プロジェクトの編集
+    1. 依存ライブラリの編集
+        - `mix.exs`を編集
+    1. 依存ライブラリの取得
+        ```bash
+        docker-compose run --rm buildex mix deps.get
+        docker-compose run --rm buildex mix distillery.init
+        ```
+1. Lambdaで実行する処理を記述
+    - `src/lambda_ex/lib`内にコードを記述
+1. ビルド
+    ```bash
+    docker-compose run --rm buildex mix erllambda.release
+    ```
+1. AWSに環境構築
+    - Terraformの[README](infrastructure/README.md)を基に実行
