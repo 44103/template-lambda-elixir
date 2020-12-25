@@ -17,4 +17,5 @@ module "apigw" {
   source   = "../modules/apigw"
   aws_name = local.aws_name
   lambda   = module.lambda
+  path_part = "slack"
 }
