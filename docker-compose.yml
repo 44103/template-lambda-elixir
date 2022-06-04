@@ -5,27 +5,17 @@ services:
     image: hashicorp/terraform:latest
     container_name: terraform_env
     volumes:
-      - ./infrastructure:/workdir
-    working_dir: "/workdir/service"
+      - ./infrastructure:/workspace
     environment:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_REGION
+    working_dir: "/workspace/service"
 
-  projex:
+  elixir:
     image: alertlogic/erllambda:20.3-elixir
-    container_name: project_elixir
     volumes:
-      - ./infrastructure/src:/buildroot
+      - ./infrastructure/functions:/buildroot
+    environment:
+      - MIX_ENV=prod
     working_dir: "/buildroot"
-    environment:
-      - MIX_ENV=prod
-
-  buildex:
-    image: alertlogic/erllambda:20.3-elixir
-    container_name: build_elixir
-    volumes:
-      - ./infrastructure/src:/buildroot
-    working_dir: "/buildroot/lambda_ex"
-    environment:
-      - MIX_ENV=prod
