@@ -1,5 +1,5 @@
 resource "aws_api_gateway_rest_api" "_" {
-  name = var.aws_name
+  name = local.name
 }
 
 resource "aws_api_gateway_resource" "_" {
@@ -38,5 +38,5 @@ resource "aws_api_gateway_deployment" "_" {
   ]
   rest_api_id       = aws_api_gateway_rest_api._.id
   stage_name        = var.stage_name
-  stage_description = "HASH=${md5(file("../modules/apigw/main.tf"))}"
+  stage_description = "HASH=${filemd5("${path.module}/main.tf")}"
 }

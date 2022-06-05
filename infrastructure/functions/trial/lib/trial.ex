@@ -1,4 +1,4 @@
-defmodule LambdaEx do
+defmodule Trial do
 
   def handle(event, context) do
     :erllambda.message("event: ~p", [event])

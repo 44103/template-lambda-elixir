@@ -1,15 +1,25 @@
-variable "aws_name" {
+variable "common_values" {}
+
+variable "name" {
   description = "リソース名"
 }
 
-variable "iam_role" {
-  type = map(string)
-}
-
 variable "envs" {
-  type        = map(string)
-  default     = {}
   description = "lambdaで使う環境変数"
+  default     = {}
 }
 
-variable "file_path" {}
+locals {
+  name = join("_", [
+    var.common_values.workspace,
+    var.name,
+    var.common_values.service,
+    var.common_values.project
+    ])
+  envs = merge(
+    { "TZ" = "Asia/Tokyo" },
+    var.envs
+  )
+  func_dir = "${path.module}/../../functions/${var.name}"
+  dist_dir = "${local.func_dir}/_build/prod/rel/${var.name}/releases/0.1.0/${var.name}.zip"
+}
