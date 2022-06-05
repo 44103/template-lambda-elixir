@@ -21,5 +21,5 @@ locals {
     var.envs
   )
   func_dir = "${path.module}/../../functions/${var.name}"
-  dist_dir = "${local.func_dir}/_build/prod/rel/${var.name}/releases/0.1.0/${var.name}.zip"
+  dist_dir = "${local.func_dir}/_aws/${var.name}-0.1.0.zip"
 }

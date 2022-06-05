@@ -24,7 +24,6 @@ create:
 
 deps:
 	@docker compose run --rm elixir /bin/bash -c "cd $(FUNC) && mix deps.get"
-	@docker compose run --rm elixir /bin/bash -c "cd $(FUNC) && mix distillery.init"
 
 build:
-	@docker compose run --rm elixir /bin/bash -c "cd $(FUNC) && mix erllambda.release"
+	@docker compose run --rm elixir /bin/bash -c "cd $(FUNC) && mix aws.release"

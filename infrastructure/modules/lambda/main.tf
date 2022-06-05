@@ -4,13 +4,13 @@ resource "aws_iam_role" "_" {
 }
 
 resource "aws_lambda_function" "_" {
-  function_name    = var.name
+  function_name    = local.name
   role             = aws_iam_role._.arn
-  runtime          = "provided"
-  handler          = "Elixir.LambdaEx"
+  runtime          = "provided.al2"
+  handler          = "Elixir.${title(var.name)}"
   timeout          = 10
   filename         = local.dist_dir
-  source_code_hash = filesha256(local.dist_dir)
+  source_code_hash = filebase64sha256(local.dist_dir)
 
   environment {
     variables = merge(

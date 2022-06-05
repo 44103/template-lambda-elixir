@@ -1,57 +1,20 @@
 defmodule Trial do
+  use FaasBase, service: :aws
+  alias FaasBase.Logger
+  alias FaasBase.Aws.Request
+  alias FaasBase.Aws.Response
 
-  def handle(event, context) do
-    :erllambda.message("event: ~p", [event])
-    :erllambda.message("context: ~p", [context])
-
-    post_to_slack(event["body"])
-
-    {:ok, response({:ok, [[{"response", "OK"}]]})}
+  @impl FaasBase
+  def init(context) do
+    # call back one time
+    {:ok, context}
   end
 
-  defp items_to_json(items) do
-    items
-    |> Enum.map(&:maps.from_list/1)
-    |> :jiffy.encode
-  end
-
-  defp response({:ok, response}) do
-    %{
-      statusCode: "200",
-      body: items_to_json(response),
-      headers: %{
-        "Content-Type": "application/json"
-      }
-    }
-  end
-
-  defp response({:error, response}) do
-    %{
-      statusCode: "400",
-      body: response,
-      headers: %{
-        "Content-Type": "application/json"
-      }
-    }
-  end
-
-  def post_to_slack(body) do
-    url = "https://slack.com/api/chat.postMessage"
-    token = System.get_env("SLACK_TOKEN")
-
-    payload = %{
-      "token": token,
-      "channel": "#documents",
-      "text": Jason.decode!(body)["text"]
-    }
-
-    headers = [
-      {"Content-type", "application/json"},
-      {"Authorization", "Bearer #{token}"}
-    ]
-
-    response = HTTPoison.post!(url, Jason.encode!(payload), headers, [])
-
-    # Logger.info "response: #{inspect response}"
+  @impl FaasBase
+  def handle(%Request{body: body} = request, event, context) do
+    Logger.info(request)
+    Logger.info(event)
+    Logger.info(context)
+    {:ok, Response.to_response(body |> String.upcase, %{}, 200)}
   end
 end

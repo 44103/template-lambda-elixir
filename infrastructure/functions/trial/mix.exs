@@ -5,7 +5,7 @@ defmodule Trial.MixProject do
     [
       app: :trial,
       version: "0.1.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -14,18 +14,14 @@ defmodule Trial.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      mod: {FaasBase.Aws.Application, []}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:mix_erllambda, "~> 1.0"},
-      {:erllambda, "~> 2.0"},
-      {:jiffy, "~> 1.0"},
-      {:jason, "~> 1.2"},
-      {:httpoison, "~> 0.13"}
+      {:faas_base, "~> 1.0.2"}
     ]
   end
 end
